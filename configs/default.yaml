@@ -1,0 +1,68 @@
+model:
+  name: unigraph2
+  hidden_dim: 768
+  num_layers: 6
+  num_heads: 8
+  dropout: 0.1
+  activation: gelu
+  
+  # Modality-specific encoder configs
+  text_encoder:
+    model_name: bert-base-uncased
+    pooling: cls
+    trainable: true
+    
+  image_encoder:
+    model_name: vit-base-patch16-224
+    trainable: true
+    
+  graph_encoder:
+    type: gat
+    num_layers: 3
+    hidden_dim: 768
+    num_heads: 8
+    dropout: 0.1
+    
+  moe:
+    num_experts: 8
+    top_k: 2
+    capacity_factor: 1.25
+    
+training:
+  max_epochs: 100
+  batch_size: 32
+  learning_rate: 1e-4
+  weight_decay: 0.01
+  warmup_steps: 1000
+  gradient_clip_val: 1.0
+  
+  # Loss weights
+  loss_weights:
+    contrastive: 1.0
+    reconstruction: 0.5
+    classification: 0.5
+    
+  # Optimizer
+  optimizer:
+    name: adamw
+    beta1: 0.9
+    beta2: 0.999
+    eps: 1e-8
+    
+  # Learning rate scheduler
+  scheduler:
+    name: cosine
+    warmup_proportion: 0.1
+    
+data:
+  train_path: data/train
+  val_path: data/val
+  test_path: data/test
+  num_workers: 4
+  
+logging:
+  project: unigraph2
+  log_every_n_steps: 50
+  save_every_n_epochs: 1
+  
+seed: 42 
